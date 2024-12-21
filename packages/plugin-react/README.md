@@ -96,26 +96,85 @@ Here's the [complete list of Babel parser plugins](https://babeljs.io/docs/en/ba
 
 ## Middleware mode
 
-In [middleware mode](https://vitejs.dev/config/server-options.html#server-middlewaremode), you should make sure your entry `index.html` file is transformed by Vite. Here's an example for an Express server:
-
-```js
-app.get('/', async (req, res, next) => {
-  try {
-    let html = fs.readFileSync(path.resolve(root, 'index.html'), 'utf-8')
-
-    // Transform HTML using Vite plugins.
-    html = await viteServer.transformIndexHtml(req.url, html)
-
-    res.send(html)
-  } catch (e) {
-    return next(e)
-  }
-})
-```
+In [middleware mode](https://vitejs.dev/config/server-options.html#server-middlewaremode), you should make sure your entry `index.html` file is transform
 
 Otherwise, you'll probably get this error:
 
-```
+```import { useState } from "react";
+import { ethers } from "ethers";
+import "./App.css";
+
+function App() {
+  const [num1, setNum1] = useState("");
+  const [num2, setNum2] = useState("");
+  const [result, setResult] = useState("");
+  const [operation, setOperation] = useState("");
+
+  const handleCalculate = async () => {
+    if (!num1 || !num2 || !operation) return;
+
+    // Connect to the Ethereum network
+    if (typeof window.ethereum !== "undefined") {
+      await window.ethereum.enable();
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    // Instantiate the contract
+    const contract = new ethers.Contract(
+      "CONTRACT_ADDRESS_HERE",
+      CalculatorABI.abi,
+      signer
+    );
+
+    // Perform the calculation
+    let calculatedResult;
+    if (operation === "+") {
+      calculatedResult = await contract.add(num1, num2);
+    } else if (operation === "-") {
+      calculatedResult = await contract.subtract(num1, num2);
+    } else if (operation === "*") {
+      calculatedResult = await contract.multiply(num1, num2);
+    } else if (operation === "/") {
+      calculatedResult = await contract.divide(num1, num2);
+    }
+
+    setResult(calculatedResult.toString());
+  };
+
+  return (
+    <div className="container">
+      <div className="calculator">
+        <h2>Calculator</h2>
+        <div className="input-group">
+          <input
+            type="number"
+            value={num1}
+            onChange={(e) => setNum1(e.target.value)}
+          />
+          <select
+            value={operation}
+            onChange={(e) => setOperation(e.target.value)}
+          >
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">*</option>
+            <option value="/">/</option>
+          </select>
+          <input
+            type="number"
+            value={num2}
+            onChange={(e) => setNum2(e.target.value)}
+          />
+        </div>
+        <button onClick={handleCalculate}>=</button>
+        <div className="result">Result: {result}</div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
 Uncaught Error: @vitejs/plugin-react can't detect preamble. Something is wrong.
 ```
 
